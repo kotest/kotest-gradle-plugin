@@ -30,12 +30,13 @@ group = "io.kotlintest"
 if (isTravis) {
     version "3.4.0." + travisBuildNumber + "-SNAPSHOT"
 } else {
-    version "3.4.0-SNAPSHOT"
+    version "3.4.0-LOCAL"
 }
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
     compileOnly gradleApi()
+    compile "io.kotlintest:kotlintest-runner-console:3.3.1"
 }
 
 pluginBundle {

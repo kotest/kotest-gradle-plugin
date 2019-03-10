@@ -1,19 +1,14 @@
 package io.kotlintest.gradle
 
-import org.gradle.api.DefaultTask
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.Task
+import org.gradle.api.tasks.testing.Test
 
-class KotlinTestPlugin : Plugin<Project> {
+open class KotlinTestPlugin : Plugin<Project> {
   override fun apply(project: Project) {
-    project.tasks.create("kotlintest", KotlinTestTask::class.java)
-  }
-}
-
-class KotlinTestTask : DefaultTask() {
-  @TaskAction
-  fun runTests() {
-    println("hello from sammy!")
+    val task = project.tasks.create("kotlintest", Test::class.java)
+    task.actions.add(KotlinTestAction() as Action<in Task>)
   }
 }
