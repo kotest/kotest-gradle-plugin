@@ -20,6 +20,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 sourceCompatibility = 1.6
@@ -36,7 +37,6 @@ if (isTravis) {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib"
     compileOnly gradleApi()
-    compile "io.kotlintest:kotlintest-runner-console:3.3.1"
 }
 
 pluginBundle {

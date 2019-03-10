@@ -13,7 +13,7 @@ class KotlinTestAction : Action<Test> {
     t.project.components
 
     fun args(): List<String> {
-      return listOf("--writer", "io.kotlintest.runner.console.DefaultConsoleWriter", "--spec", "io.kotlintest.samples.gradle.FreeSpecExampleTest")
+      return listOf("--writer", "io.kotlintest.runner.console.DefaultConsoleWriter")
     }
 
     fun exec(): JavaExecAction {
