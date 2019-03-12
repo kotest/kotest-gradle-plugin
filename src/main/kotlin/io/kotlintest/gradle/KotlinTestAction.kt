@@ -1,6 +1,7 @@
 package io.kotlintest.gradle
 
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.tasks.testing.Test
@@ -28,7 +29,9 @@ class KotlinTestAction : Action<Test> {
       return exec
     }
 
-    println(args())
-    exec().execute()
+    val result = exec().execute()
+    if (result.exitValue != 0) {
+      throw GradleException("There were test failures")
+    }
   }
 }
