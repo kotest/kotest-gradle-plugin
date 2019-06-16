@@ -24,7 +24,9 @@ class KotlinTestAction : Action<Test> {
       exec.classpath = t.classpath
       exec.jvmArgs = t.allJvmArgs
       exec.args = args()
-      exec.isIgnoreExitValue = false
+      // this must be true so we can handle the failure ourselves by throwing GradleException
+      // otherwise we get a nasty stack trace from gradle
+      exec.isIgnoreExitValue = true
       return exec
     }
 
