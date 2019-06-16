@@ -7,14 +7,13 @@ import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.tasks.testing.Test
 import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.JavaExecAction
+import java.lang.Exception
 
 class KotlinTestAction : Action<Test> {
   override fun execute(t: Test) {
 
-    t.project.components
-
     fun args(): List<String> {
-      return listOf("--writer", "io.kotlintest.runner.console.DefaultConsoleWriter")
+      return listOf("--writer", "io.kotlintest.runner.console.MochaConsoleWriter")
     }
 
     fun exec(): JavaExecAction {
@@ -25,11 +24,18 @@ class KotlinTestAction : Action<Test> {
       exec.classpath = t.classpath
       exec.jvmArgs = t.allJvmArgs
       exec.args = args()
-      exec.isIgnoreExitValue = true
+      exec.isIgnoreExitValue = false
       return exec
     }
 
-    val result = exec().execute()
+    val result = try {
+      exec().execute()
+    } catch (e: Exception) {
+      println(e)
+      e.printStackTrace()
+      throw GradleException("Test process failed", e)
+    }
+
     if (result.exitValue != 0) {
       throw GradleException("There were test failures")
     }
