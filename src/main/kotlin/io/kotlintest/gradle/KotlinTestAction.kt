@@ -13,7 +13,7 @@ class KotlinTestAction : Action<Test> {
   override fun execute(t: Test) {
 
     fun args(): List<String> {
-      return listOf("--writer", "io.kotlintest.runner.console.MochaConsoleWriter")
+      return listOf("--writer", "mocha", "--source", "kotlintest-gradle-plugin")
     }
 
     fun exec(): JavaExecAction {
