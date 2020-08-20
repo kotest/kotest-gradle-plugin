@@ -23,3 +23,22 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 .gradle/
+build/classes/kotlin/main/META-INF/
+build/kotlin/
+build/libs/
+build/pluginDescriptors/
+build/pluginUnderTestMetadata/
+build/publications/
+build/reports/
+build/resources/
+build/tmp/
+buildSrc/build/classes/java/
+buildSrc/build/classes/kotlin/main/META-INF/
+buildSrc/build/kotlin/
+buildSrc/build/libs/
+buildSrc/build/pluginDescriptors/
+buildSrc/build/pluginUnderTestMetadata/
+buildSrc/build/reports/
+buildSrc/build/source-roots/
+buildSrc/build/tmp/
+out/production/classes/META-INF/
