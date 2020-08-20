@@ -3,6 +3,9 @@ package io.kotest.gradle
 import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.process.JavaDebugOptions
 import org.gradle.process.JavaForkOptions
@@ -16,6 +19,7 @@ abstract class KotestAbstractTask(forkOptionsFactory: JavaForkOptionsFactory) : 
       enableAssertions = true
    }
 
+   @Input
    override fun getExecutable(): String = forkOptions.executable
 
    override fun setExecutable(executable: String?) {
@@ -31,6 +35,7 @@ abstract class KotestAbstractTask(forkOptionsFactory: JavaForkOptionsFactory) : 
       return this
    }
 
+   @InputFile
    override fun getWorkingDir(): File = forkOptions.workingDir
 
    override fun setWorkingDir(dir: File?) {
@@ -44,6 +49,7 @@ abstract class KotestAbstractTask(forkOptionsFactory: JavaForkOptionsFactory) : 
       return this
    }
 
+   @Input
    override fun getEnvironment(): MutableMap<String, Any> = forkOptions.environment
 
    override fun setEnvironment(environmentVariables: MutableMap<String, *>?) {

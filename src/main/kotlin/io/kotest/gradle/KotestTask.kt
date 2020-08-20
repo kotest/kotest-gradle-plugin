@@ -35,31 +35,23 @@ open class KotestTask @Inject constructor(
    private val testClassesDirs: FileCollection = project.objects.fileCollection()
    private val patternSet: PatternSet = patternSetFactory.create()!!
    private val binaryResultsDirectory = project.objects.directoryProperty()
-   private val args = listOf("--writer", "BasicWriter")
 
-   data class TestExecutionParams(
-       val classpath: FileCollection,
-       val modulepath: FileCollection,
-       val candidateClassFiles: FileTree,
-       val testClassesDirs: FileCollection,
-       val projectPath: String,
-       val identityPath: Path,
-       val javaForkOptions: Any?,
-   )
+   private fun args() = if (isIntellij()) {
+      listOf("--writer", "mocha")
+   } else {
+      listOf("--writer", "teamcity")
+   }
+
+   private fun isIntellij(): Boolean = try {
+      Class.forName("com.intellij.rt.execution.CommandLineWrapper")
+      true
+   } catch (t: Throwable) {
+      false
+   }
 
    private fun candidateClassFiles(): FileTree {
       return testClassesDirs.asFileTree.matching(patternSet)
    }
-
-//   private fun createExecutionParams(): TestExecutionParams {
-//      val forkOptions = forkOptionsFactory.newJavaForkOptions()
-////      copyTo(forkOptions)
-//      val modularity = objectFactory.newInstance(DefaultModularitySpec::class.java)
-//      val testIsModule = javaModuleDetector.isModule(modularity.inferModulePath.get(), testClassesDirs)
-//      val cp = javaModuleDetector.inferClasspath(testIsModule, classpath)
-//      val mp = javaModuleDetector.inferModulePath(testIsModule, classpath)
-//      return TestExecutionParams(cp, mp, candidateClassFiles(), testClassesDirs, identity.projectPath.toString(), identity.identityPath, forkOptions)
-//   }
 
    private fun exec(): JavaExecAction {
 
@@ -75,7 +67,7 @@ open class KotestTask @Inject constructor(
       exec.main = "io.kotest.framework.launcher.LauncherKt"
       exec.classpath = test.runtimeClasspath
       exec.jvmArgs = allJvmArgs
-      exec.args = args
+      exec.args = args()
       // this must be true so we can handle the failure ourselves by throwing GradleException
       // otherwise we get a nasty stack trace from gradle
       exec.isIgnoreExitValue = true
@@ -84,13 +76,9 @@ open class KotestTask @Inject constructor(
       return exec
    }
 
-   override fun getActions(): MutableList<Action<in Task>> {
-      return super.getActions()
-   }
-
    @TaskAction
    fun executeTests() {
-      println("Kotest for the win !!!!")
+      println("Kotest for the win intellij=" + isIntellij())
 
       // delete the output folder then recreate it
       val binaryResultsDir = binaryResultsDirectory.asFile.orNull
