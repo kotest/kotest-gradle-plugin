@@ -1,7 +1,7 @@
 object Ci {
 
    // this is the version
-   private const val baseVersion = "0.1.0"
+   private const val baseVersion = "0.1"
 
    private val githubBuildNumber = System.getenv("GITHUB_RUN_NUMBER")
 
@@ -10,8 +10,8 @@ object Ci {
       else -> "$baseVersion.${githubBuildNumber}-SNAPSHOT"
    }
 
-   private val releaseVersion = System.getenv("RELEASE_VERSION")
+   private val releaseVersion = "${baseVersion}.${githubBuildNumber}"
 
-   val isRelease = releaseVersion != null
-   val publishVersion = releaseVersion ?: snapshotVersion
+   val isRelease = githubBuildNumber != null
+   val publishVersion = if (isRelease) releaseVersion else snapshotVersion
 }
