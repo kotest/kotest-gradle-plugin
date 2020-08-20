@@ -7,11 +7,11 @@ buildscript {
 
 plugins {
    java
-   kotlin("jvm").version("1.4.0")
+   kotlin("jvm").version(Libs.KotlinVersion)
    id("java-library")
    id("maven-publish")
    id("java-gradle-plugin")
-   id("com.gradle.plugin-publish").version("0.12.0")
+   id("com.gradle.plugin-publish").version(Libs.GradlePluginPublishVersion)
 }
 
 repositories {
@@ -36,7 +36,7 @@ tasks {
       plugins {
          create("kotestPlugin") {
             id = "io.kotest"
-            implementationClass = "io.kotest.gradle.KotlinTestPlugin"
+            implementationClass = "io.kotest.gradle.KotestPlugin"
             displayName = "Gradle Kotest Runner"
             description = "Adds support to Gradle for running Kotest tests"
          }
