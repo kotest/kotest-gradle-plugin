@@ -4,8 +4,7 @@ import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.process.JavaDebugOptions
 import org.gradle.process.JavaForkOptions
@@ -35,7 +34,7 @@ abstract class KotestAbstractTask(forkOptionsFactory: JavaForkOptionsFactory) : 
       return this
    }
 
-   @InputFile
+   @InputDirectory
    override fun getWorkingDir(): File = forkOptions.workingDir
 
    override fun setWorkingDir(dir: File?) {
