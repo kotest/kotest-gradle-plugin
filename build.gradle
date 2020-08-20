@@ -18,7 +18,6 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.10.1'
 }
 
-
 repositories {
     mavenCentral()
     mavenLocal()
