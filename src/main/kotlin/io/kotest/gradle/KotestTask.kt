@@ -38,7 +38,13 @@ open class KotestTask @Inject constructor(
       copyTo(exec)
 
       val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-      val test = javaConvention.sourceSets.findByName("test") ?: error("Cannot find test sourceset")
+      val testResultsDir = javaConvention.testResultsDir
+      println("testResultsDir=$testResultsDir")
+
+      val jvm = project.plugins.findPlugin("org.jetbrains.kotlin.jvm") != null
+      val testSourceSetName = if (jvm) "test" else "jvmTest"
+      val test = javaConvention.sourceSets.findByName(testSourceSetName)
+          ?: error("Cannot find test sourceset '$testSourceSetName'")
 
       exec.main = "io.kotest.framework.launcher.LauncherKt"
       exec.classpath = test.runtimeClasspath
