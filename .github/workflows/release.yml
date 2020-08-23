@@ -13,7 +13,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: deploy to sonatype
+      - name: deploy to gradle
         run: ./gradlew publishPlugins
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
