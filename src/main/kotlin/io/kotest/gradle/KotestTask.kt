@@ -20,11 +20,7 @@ open class KotestTask @Inject constructor(
     private val executorFactory: ExecutorFactory,
 ) : KotestAbstractTask(forkOptionsFactory) {
 
-   private fun args() = if (isIntellij()) {
-      listOf("--writer", "teamcity")
-   } else {
-      listOf("--writer", "mocha")
-   }
+   private fun args() = listOf("--termcolor", "true") + writerArg()
 
    private fun isIntellij(): Boolean = try {
       Class.forName("com.intellij.rt.execution.CommandLineWrapper")
@@ -33,20 +29,19 @@ open class KotestTask @Inject constructor(
       false
    }
 
+   private fun writerArg() = if (isIntellij()) listOf("--reporter", "auto") else listOf("--reporter", "io.kotest.engine.reporter.TaycanConsoleReporter")
+
    private fun exec(): JavaExecAction {
       val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory).newJavaExecAction()
       copyTo(exec)
 
       val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-      val testResultsDir = javaConvention.testResultsDir
-      println("testResultsDir=$testResultsDir")
-
       val jvm = project.plugins.findPlugin("org.jetbrains.kotlin.jvm") != null
       val testSourceSetName = if (jvm) "test" else "jvmTest"
       val test = javaConvention.sourceSets.findByName(testSourceSetName)
           ?: error("Cannot find test sourceset '$testSourceSetName'")
 
-      exec.main = "io.kotest.framework.launcher.LauncherKt"
+      exec.main = "io.kotest.engine.launcher.MainKt"
       exec.classpath = test.runtimeClasspath
       exec.jvmArgs = allJvmArgs
       exec.args = args()
@@ -60,7 +55,7 @@ open class KotestTask @Inject constructor(
    @TaskAction
    fun executeTests() {
 
-      val testResultsDir = project.buildDir.resolve("test-results")
+      //val testResultsDir = project.buildDir.resolve("test-results")
 
       val result = try {
          exec().execute()
