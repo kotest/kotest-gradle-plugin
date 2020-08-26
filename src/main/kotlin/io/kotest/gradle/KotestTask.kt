@@ -4,6 +4,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.concurrent.ExecutorFactory
 import org.gradle.process.internal.DefaultExecActionFactory
@@ -29,20 +30,15 @@ open class KotestTask @Inject constructor(
       false
    }
 
-   private fun writerArg() = if (isIntellij()) listOf("--reporter", "auto") else listOf("--reporter", "io.kotest.engine.reporter.TaycanConsoleReporter")
+   // -- reporter was added in 4.2.1
+   private fun writerArg() = if (isIntellij()) listOf("--reporter", "teamcity") else listOf("--reporter", "io.kotest.engine.reporter.TaycanConsoleReporter")
 
-   private fun exec(): JavaExecAction {
+   private fun exec(sourceset: SourceSet): JavaExecAction {
       val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory).newJavaExecAction()
       copyTo(exec)
 
-      val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java)
-      val jvm = project.plugins.findPlugin("org.jetbrains.kotlin.jvm") != null
-      val testSourceSetName = if (jvm) "test" else "jvmTest"
-      val test = javaConvention.sourceSets.findByName(testSourceSetName)
-          ?: error("Cannot find test sourceset '$testSourceSetName'")
-
       exec.main = "io.kotest.engine.launcher.MainKt"
-      exec.classpath = test.runtimeClasspath
+      exec.classpath = sourceset.runtimeClasspath
       exec.jvmArgs = allJvmArgs
       exec.args = args()
       // this must be true so we can handle the failure ourselves by throwing GradleException
@@ -52,13 +48,22 @@ open class KotestTask @Inject constructor(
       return exec
    }
 
+   private fun testSourceSet(): SourceSet? {
+      val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java) ?: return null
+      val jvm = project.plugins.findPlugin("org.jetbrains.kotlin.jvm") != null
+      val testSourceSetName = if (jvm) "test" else "jvmTest"
+      return javaConvention.sourceSets.findByName(testSourceSetName)
+   }
+
    @TaskAction
    fun executeTests() {
+
+      val sourceSet = testSourceSet() ?: return
 
       //val testResultsDir = project.buildDir.resolve("test-results")
 
       val result = try {
-         exec().execute()
+         exec(sourceSet).execute()
       } catch (e: Exception) {
          println(e)
          e.printStackTrace()
