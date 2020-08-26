@@ -51,8 +51,7 @@ open class KotestTask @Inject constructor(
    private fun testSourceSet(): SourceSet? {
       val javaConvention = project.convention.getPlugin(JavaPluginConvention::class.java) ?: return null
       val jvm = project.plugins.findPlugin("org.jetbrains.kotlin.jvm") != null
-      val testSourceSetName = if (jvm) "test" else "jvmTest"
-      return javaConvention.sourceSets.findByName(testSourceSetName)
+      return javaConvention.sourceSets.find { it.name == "test" || it.name == "jvmTest" }
    }
 
    @TaskAction
