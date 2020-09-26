@@ -23,15 +23,9 @@ open class KotestTask @Inject constructor(
 
    private fun args() = listOf("--termcolor", "true") + writerArg()
 
-   private fun isIntellij(): Boolean = try {
-      Class.forName("com.intellij.rt.execution.CommandLineWrapper")
-      true
-   } catch (t: Throwable) {
-      false
-   }
-
    // -- reporter was added in 4.2.1
-   private fun writerArg() = if (isIntellij()) listOf("--reporter", "teamcity") else listOf("--reporter", "io.kotest.engine.reporter.TaycanConsoleReporter")
+   private fun writerArg() = if (isIntellij()) listOf("--reporter", "teamcity") else listOf("--reporter",
+       "io.kotest.engine.reporter.TaycanConsoleReporter")
 
    private fun exec(sourceset: SourceSet): JavaExecAction {
       val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory).newJavaExecAction()
