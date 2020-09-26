@@ -5,6 +5,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.concurrent.ExecutorFactory
 import org.gradle.process.internal.DefaultExecActionFactory
@@ -22,7 +23,7 @@ open class KotestTask @Inject constructor(
 ) : KotestAbstractTask(forkOptionsFactory) {
 
    // this must be set after the task is created
-   @Input
+   @InputFile
    var classpath: FileCollection? = null
 
    private fun args() = listOf("--termcolor", "true") + writerArg()
