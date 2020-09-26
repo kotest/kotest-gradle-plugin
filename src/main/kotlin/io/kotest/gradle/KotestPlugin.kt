@@ -2,40 +2,39 @@ package io.kotest.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.internal.DefaultJavaPluginConvention
-import org.gradle.api.tasks.SourceSet
-
 
 open class KotestPlugin : Plugin<Project> {
 
    override fun apply(project: Project) {
-      println("Project: ${project.name}")
+
+      project.plugins.withId("org.jetbrains.kotlin.multiplatform") {
+         project.mppTestTargets().forEach { (target, files) ->
+            applyPlugin(
+                project,
+                target.targetName + "Kotest",
+                target.targetName + "TestClasses",
+                files
+            )
+         }
+      }
+
       project.plugins.withType(JavaPlugin::class.java) {
-         when (val java = project.convention.plugins["java"]) {
-            is DefaultJavaPluginConvention -> {
-               // detect the test sourceset and add a kotest task that will
-               // execute against that test sourceset
-               val testSourceSet = java.sourceSets.findByName("test")
-               if (testSourceSet != null) {
-                  applyPlugin(project, testSourceSet)
-               }
-            }
-            else -> Unit
+         project.javaTestSourceSet()?.let {
+            applyPlugin(project, "kotest", JavaPlugin.TEST_CLASSES_TASK_NAME, it.runtimeClasspath)
          }
       }
    }
 
-   private fun applyPlugin(project: Project, sourceset: SourceSet) {
-      if (project.tasks.none { task -> task.name == "kotest" }) {
-         val task = project.tasks.create("kotest", KotestTask::class.java)
+   private fun applyPlugin(project: Project, taskName: String, dependentTask: String?, classpath: FileCollection) {
+      if (project.tasks.none { it.name == taskName }) {
+         val task = project.tasks.maybeCreate(taskName, KotestTask::class.java)
+         task.classpath = classpath
+         task.description = "Run Kotest"
          task.group = "verification"
-         task.description = "Run Kotest against ${sourceset.name} sourceset"
-
-         val tasks = project.tasks.map { it.name }
-         val potentialDependsOn = arrayOf("classes", "testClasses").filter { tasks.contains(it) }
-         task.dependsOn(*potentialDependsOn.toTypedArray())
+         if (dependentTask != null && project.tasks.any { it.name == dependentTask })
+            task.dependsOn(dependentTask)
       }
-
    }
 }

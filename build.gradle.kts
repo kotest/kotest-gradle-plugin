@@ -24,6 +24,7 @@ version = Ci.publishVersion
 
 dependencies {
    compileOnly(gradleApi())
+   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
 }
 
 tasks {
