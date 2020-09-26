@@ -4,7 +4,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.concurrent.ExecutorFactory
