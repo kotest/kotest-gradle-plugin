@@ -17,7 +17,7 @@ plugins {
 }
 ```
 
-Ensure your build has the kotest engine dependency and remove the junit5 dependency.
+Ensure your build has the kotest engine dependency and remove the junit5 dependency if this was in your build previously.
 
 ```kotlin
 dependencies {
