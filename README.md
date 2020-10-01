@@ -29,3 +29,11 @@ Or from within intellij under the gradle -> tasks -> verification -> kotest task
 ### Example Output
 
 ![output image](docs/output1.png)
+
+Another example with failure:
+
+![output image with failure](docs/output2.png)
+
+Errors are again summarized at the end for easy digesting:
+
+![output image with failure](docs/output3.png)
