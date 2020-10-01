@@ -17,7 +17,14 @@ plugins {
 }
 ```
 
-Ensure your dependencies have the kotest engine `io.kotest:kotest-runner-junit5-jvm:version` dependency and remove the junit5 dependency.
+Ensure your build has the kotest engine dependency and remove the junit5 dependency.
+
+```kotlin
+dependencies {
+  testImplementation("io.kotest:kotest-assertions-core-jvm:$version")
+  testImplementation("io.kotest:kotest-framework-engine-jvm:$version")
+}
+```
 
 Then execute the tests at the command line using the `kotest` task.
 
