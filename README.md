@@ -17,6 +17,8 @@ plugins {
 }
 ```
 
+Ensure your dependencies have the kotest engine `io.kotest:kotest-runner-junit5-jvm:version` dependency and remove the junit5 dependency.
+
 Then execute the tests at the command line using the `kotest` task.
 
 ```bash
