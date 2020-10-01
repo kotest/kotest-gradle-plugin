@@ -2,7 +2,7 @@
 
 ![build](https://github.com/kotest/kotest-gradle-plugin/workflows/build/badge.svg)
 
-[Gradle plugin](https://plugins.gradle.org/plugin/io.kotest) for running JVM tests with Kotest. Requires Kotest 4.2.6+
+[Gradle plugin](https://plugins.gradle.org/plugin/io.kotest) for running JVM tests with Kotest. Requires Kotest 4.2.6 or a snapshot 4.3.0 build.
 
 This is an alternative to using JUnit5 support and provides better output than the gradle default, especially for nested tests. 
 
