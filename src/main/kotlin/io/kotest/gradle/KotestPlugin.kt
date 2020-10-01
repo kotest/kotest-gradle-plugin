@@ -44,6 +44,7 @@ open class KotestPlugin : Plugin<Project> {
          task.group = "verification"
          if (dependentTask != null && project.tasks.any { it.name == dependentTask })
             task.dependsOn(dependentTask)
+         project.subprojects.forEach { applyPlugin(it, taskName, dependentTask) }
       }
    }
 }
