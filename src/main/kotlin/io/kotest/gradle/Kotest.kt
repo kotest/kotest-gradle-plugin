@@ -21,7 +21,7 @@ import javax.inject.Inject
 import kotlin.concurrent.thread
 
 // gradle seems to require the class be open
-open class KotestTask @Inject constructor(
+open class Kotest @Inject constructor(
     private val fileResolver: FileResolver,
     private val fileCollectionFactory: FileCollectionFactory,
     private val executorFactory: ExecutorFactory
@@ -81,31 +81,34 @@ open class KotestTask @Inject constructor(
    }
 
    fun setTag(expression: String) {
+   }
 
+   private fun rerouteTeamCityListener(exec: JavaExecAction) {
+      val input = PipedInputStream()
+      exec.standardOutput = PipedOutputStream(input)
+      thread {
+         val root = DefaultTestSuiteDescriptor("root", "root")
+         listeners.forEach {
+            it.beforeSuite(root)
+         }
+         input.bufferedReader().useLines { lines ->
+            val parser = ServiceMessagesParser()
+            val callback = KotestServiceMessageParserCallback(root, listeners, outputListeners)
+            lines.forEach { parser.parse(it, callback) }
+         }
+         listeners.forEach {
+            it.afterSuite(root, DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, emptyList()))
+         }
+      }
    }
 
    @TaskAction
    override fun executeTests() {
       //val testResultsDir = project.buildDir.resolve("test-results")
       val sourceset = project.javaTestSourceSet() ?: return
-      val root = DefaultTestSuiteDescriptor("root", "root")
       val result = try {
          val exec = exec(sourceset.runtimeClasspath)
-         val input = PipedInputStream()
-         exec.standardOutput = PipedOutputStream(input)
-         thread {
-            listeners.forEach {
-               it.beforeSuite(root)
-            }
-            input.bufferedReader().useLines { lines ->
-               val parser = ServiceMessagesParser()
-               val callback = KotestServiceMessageParserCallback(root, listeners, outputListeners)
-               lines.forEach { parser.parse(it, callback) }
-            }
-            listeners.forEach {
-               it.afterSuite(root, DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, emptyList()))
-            }
-         }
+         if (isIntellij()) rerouteTeamCityListener(exec)
          exec.execute()
       } catch (e: Exception) {
          println(e)

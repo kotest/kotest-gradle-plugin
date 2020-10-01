@@ -24,6 +24,7 @@ class KotestServiceMessageParserCallback(private val root: DefaultTestSuiteDescr
    override fun parseException(p0: ParseException, p1: String) {}
 
    override fun serviceMessage(msg: ServiceMessage) {
+      println(msg)
       when (msg.messageName) {
          ServiceMessageTypes.TEST_STARTED -> notifyBeforeTest(msg)
          ServiceMessageTypes.TEST_FAILED,

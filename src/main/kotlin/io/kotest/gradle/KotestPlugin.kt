@@ -39,7 +39,7 @@ open class KotestPlugin : Plugin<Project> {
 
    private fun applyPlugin(project: Project, taskName: String, dependentTask: String?) {
       if (project.tasks.none { it.name == taskName }) {
-         val task = project.tasks.maybeCreate(taskName, KotestTask::class.java)
+         val task = project.tasks.maybeCreate(taskName, Kotest::class.java)
          task.description = "Run Kotest"
          task.group = "verification"
          if (dependentTask != null && project.tasks.any { it.name == dependentTask })
