@@ -1,37 +1,61 @@
 package io.kotest.gradle
 
+import jetbrains.buildServer.messages.serviceMessages.ServiceMessagesParser
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.internal.tasks.testing.DefaultTestSuiteDescriptor
+import org.gradle.api.internal.tasks.testing.results.DefaultTestResult
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.testing.TestListener
+import org.gradle.api.tasks.testing.TestOutputListener
+import org.gradle.api.tasks.testing.TestResult
 import org.gradle.internal.concurrent.ExecutorFactory
 import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.JavaExecAction
-import org.gradle.process.internal.JavaForkOptionsFactory
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 // gradle seems to require the class be open
 open class KotestTask @Inject constructor(
-    forkOptionsFactory: JavaForkOptionsFactory,
-//    private val fileOps: FileSystemOperations,
     private val fileResolver: FileResolver,
     private val fileCollectionFactory: FileCollectionFactory,
     private val executorFactory: ExecutorFactory
-) : KotestAbstractTask(forkOptionsFactory) {
+) : Test() {
 
-   // this must be set after the task is created
-   @InputFile
-   var classpath: FileCollection? = null
+   companion object {
+      private const val IntellijTestListenerClassName = "IJTestEventLogger"
+      private const val ReporterArg = "--reporter"
+      private const val TermArg = "--termcolor"
+      private const val TeamCityReporter = "teamcity"
+      private const val TaycanReporter = "io.kotest.engine.reporter.TaycanConsoleReporter"
+      private const val PlainColours = "ansi16"
+      private const val TrueColours = "ansi256"
+   }
 
-   private fun args() = listOf("--termcolor", "true") + writerArg()
+   private val listeners = mutableListOf<TestListener>()
+   private val outputListeners = mutableListOf<TestOutputListener>()
+
+   // intellij will call this to register its listeners for the test event run window
+   override fun addTestListener(listener: TestListener) {
+      listeners.add(listener)
+   }
+
+   override fun addTestOutputListener(listener: TestOutputListener) {
+      outputListeners.add(listener)
+   }
 
    // -- reporter was added in 4.2.1
-   private fun writerArg() = if (isIntellij()) listOf("--reporter", "teamcity") else listOf("--reporter",
-       "io.kotest.engine.reporter.TaycanConsoleReporter")
+   private fun args() = when {
+      isIntellij() -> listOf(ReporterArg, TeamCityReporter, TermArg, PlainColours)
+      else -> listOf(ReporterArg, TaycanReporter, TermArg, TrueColours)
+   }
 
-   private fun exec(): JavaExecAction {
+   private fun exec(classpath: FileCollection): JavaExecAction {
       val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory).newJavaExecAction()
       copyTo(exec)
 
@@ -46,14 +70,43 @@ open class KotestTask @Inject constructor(
       return exec
    }
 
+   /**
+    * Returns true if we are running inside intellij.
+    * We detect this by looking to see if intellij added it's own test listener to this task, which it
+    * does for any task tat extends Test.
+    * The intellij test listener is an instance of IJTestEventLogger.
+    */
+   private fun isIntellij(): Boolean {
+      return listeners.map { it::class.java.name }.any { it.contains(IntellijTestListenerClassName) }
+   }
+
+   fun setTag(expression: String) {
+
+   }
+
    @TaskAction
-   fun executeTests() {
-
-      if (classpath == null) return
+   override fun executeTests() {
       //val testResultsDir = project.buildDir.resolve("test-results")
-
+      val sourceset = project.javaTestSourceSet() ?: return
+      val root = DefaultTestSuiteDescriptor("root", "root")
       val result = try {
-         exec().execute()
+         val exec = exec(sourceset.runtimeClasspath)
+         val input = PipedInputStream()
+         exec.standardOutput = PipedOutputStream(input)
+         thread {
+            listeners.forEach {
+               it.beforeSuite(root)
+            }
+            input.bufferedReader().useLines { lines ->
+               val parser = ServiceMessagesParser()
+               val callback = KotestServiceMessageParserCallback(root, listeners, outputListeners)
+               lines.forEach { parser.parse(it, callback) }
+            }
+            listeners.forEach {
+               it.afterSuite(root, DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, emptyList()))
+            }
+         }
+         exec.execute()
       } catch (e: Exception) {
          println(e)
          e.printStackTrace()

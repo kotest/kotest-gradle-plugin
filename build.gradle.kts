@@ -24,7 +24,10 @@ version = Ci.publishVersion
 
 dependencies {
    compileOnly(gradleApi())
-   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10")
+   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72")
+   compileOnly("io.kotest:kotest-framework-api-jvm:4.2.5")
+   implementation("io.kotest:kotest-framework-engine-jvm:4.2.5")
+   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
 }
 
 tasks {
