@@ -137,7 +137,6 @@ data class TestCaseDescriptor(
    override fun getParent(): TestDescriptorInternal = parentTestDescriptor
    override fun parentTestDescription(): KotestTestDescriptor = parentTestDescriptor
    override fun getId(): Any = testId
-   override fun getOwnerBuildOperationId(): Any? = null
    override fun getClassDisplayName(): String = fqn
    override val testType: String = "Test"
 }
@@ -155,7 +154,6 @@ data class ContainerDescriptor(
    override fun getParent(): TestDescriptorInternal = parentTestDescriptor
    override fun parentTestDescription(): KotestTestDescriptor = parentTestDescriptor
    override fun getId(): Any = testId
-   override fun getOwnerBuildOperationId(): Any? = null
    override fun getClassDisplayName(): String = fqn
    override val testType: String = "Container"
 }
@@ -172,7 +170,6 @@ data class SpecDescriptor(
    override fun parentTestDescription(): KotestTestDescriptor? = null
    override fun getId(): Any = fqn
    override val testId: String = fqn
-   override fun getOwnerBuildOperationId(): Any? = null
    override fun getClassDisplayName(): String = fqn
    override val testType: String = "Spec"
 }
