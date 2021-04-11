@@ -22,12 +22,29 @@ repositories {
 group = "io.kotest"
 version = Ci.publishVersion
 
+java {
+   sourceCompatibility = JavaVersion.VERSION_1_8
+   targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 dependencies {
    compileOnly(gradleApi())
-   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.72")
-   compileOnly("io.kotest:kotest-framework-api-jvm:4.2.5")
-   implementation("io.kotest:kotest-framework-engine-jvm:4.2.5")
-   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
+   compileOnly("io.kotest:kotest-framework-api-jvm:4.4.3")
+   implementation("io.kotest:kotest-framework-engine-jvm:4.4.3")
+   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+}
+
+if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+   tasks.withType<JavaCompile> {
+      options.release.set(8)
+   }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+   kotlinOptions {
+      jvmTarget = "1.8"
+   }
 }
 
 tasks {

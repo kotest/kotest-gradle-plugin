@@ -56,7 +56,7 @@ open class Kotest @Inject constructor(
    }
 
    private fun exec(classpath: FileCollection): JavaExecAction {
-      val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory).newJavaExecAction()
+      val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory, null).newJavaExecAction()
       copyTo(exec)
 
       exec.main = "io.kotest.engine.launcher.MainKt"

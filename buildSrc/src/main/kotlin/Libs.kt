@@ -1,5 +1,5 @@
 object Libs {
 
-   const val KotlinVersion = "1.4.0"
-   const val GradlePluginPublishVersion = "0.12.0"
+   const val KotlinVersion = "1.4.32"
+   const val GradlePluginPublishVersion = "0.14.0"
 }
