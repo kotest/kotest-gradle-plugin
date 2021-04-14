@@ -1,0 +1,15 @@
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 3
+max_line_length = 120
+trim_trailing_whitespace = true
+ij_kotlin_enum_constants_wrap = on_every_item
+ij_any_space_after_comma = true
+
+[*.yml]
+indent_size = 3
+
+[*.gradle]
+indent_size = 3

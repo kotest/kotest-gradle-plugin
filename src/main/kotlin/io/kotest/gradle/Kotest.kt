@@ -8,6 +8,7 @@ import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.tasks.testing.DefaultTestSuiteDescriptor
 import org.gradle.api.internal.tasks.testing.results.DefaultTestResult
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestListener
 import org.gradle.api.tasks.testing.TestOutputListener
@@ -31,6 +32,7 @@ open class Kotest @Inject constructor(
       private const val IntellijTestListenerClassName = "IJTestEventLogger"
       private const val ReporterArg = "--reporter"
       private const val TermArg = "--termcolor"
+      private const val TagsArg = "--tags"
       private const val TeamCityReporter = "teamcity"
       private const val TaycanReporter = "io.kotest.engine.reporter.TaycanConsoleReporter"
       private const val PlainColours = "ansi16"
@@ -39,6 +41,14 @@ open class Kotest @Inject constructor(
 
    private val listeners = mutableListOf<TestListener>()
    private val outputListeners = mutableListOf<TestOutputListener>()
+
+   private var tags: String? = null
+
+   // gradle will call this if --tags was specified on the command line
+   @Option(option = "tags", description = "Set tag expression to include or exclude tests")
+   fun setTags(tags: String) {
+      this.tags = tags
+   }
 
    // intellij will call this to register its listeners for the test event run window
    override fun addTestListener(listener: TestListener) {
@@ -49,14 +59,29 @@ open class Kotest @Inject constructor(
       outputListeners.add(listener)
    }
 
+   /**
+    * Returns args to be used for the tag expression.
+    *
+    * If --tags was passed as a command line arg, then that takes precedence over the value
+    * set in the gradle build.
+    *
+    * Returns empty list if no tag expression was specified.
+    */
+   private fun tagArgs(): List<String> {
+      tags?.let { return listOf(TagsArg, it) }
+      project.kotest()?.tags?.orNull?.let { return listOf(TagsArg, it) }
+      return emptyList()
+   }
+
    // -- reporter was added in 4.2.1
    private fun args() = when {
-      isIntellij() -> listOf(ReporterArg, TeamCityReporter, TermArg, PlainColours)
-      else -> listOf(ReporterArg, TaycanReporter, TermArg, TrueColours)
+      isIntellij() -> listOf(ReporterArg, TeamCityReporter, TermArg, PlainColours) + tagArgs()
+      else -> listOf(ReporterArg, TaycanReporter, TermArg, TrueColours) + tagArgs()
    }
 
    private fun exec(classpath: FileCollection): JavaExecAction {
-      val exec = DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory, null).newJavaExecAction()
+      val exec =
+         DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory, null).newJavaExecAction()
       copyTo(exec)
 
       exec.main = "io.kotest.engine.launcher.MainKt"
@@ -78,9 +103,6 @@ open class Kotest @Inject constructor(
     */
    private fun isIntellij(): Boolean {
       return listeners.map { it::class.java.name }.any { it.contains(IntellijTestListenerClassName) }
-   }
-
-   fun setTag(expression: String) {
    }
 
    private fun rerouteTeamCityListener(exec: JavaExecAction) {

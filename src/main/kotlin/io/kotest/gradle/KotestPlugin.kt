@@ -7,6 +7,13 @@ import org.gradle.api.plugins.JavaPlugin
 open class KotestPlugin : Plugin<Project> {
 
    override fun apply(project: Project) {
+
+      val extension = project.extensions.create(
+         "kotest",
+         KotestExtension::class.java,
+         project
+      )
+
 //      project.plugins.withId("org.jetbrains.kotlin.multiplatform") {
 //         project.mppTestTargets().forEach { (target, files) ->
 //            applyPlugin(
@@ -49,3 +56,10 @@ open class KotestPlugin : Plugin<Project> {
    }
 }
 
+internal fun Project.kotest(): KotestExtension? {
+   return when (val ext = extensions.findByName("kotest")) {
+      is KotestExtension -> ext
+      null -> null
+      else -> throw IllegalStateException("kotest is not of the correct type")
+   }
+}

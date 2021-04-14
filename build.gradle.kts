@@ -33,6 +33,25 @@ dependencies {
    compileOnly("io.kotest:kotest-framework-api-jvm:4.4.3")
    implementation("io.kotest:kotest-framework-engine-jvm:4.4.3")
    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+
+   testImplementation(Libs.Kotest.assertions)
+   testImplementation(Libs.Kotest.junit5)
+}
+
+tasks.named<Test>("test") {
+   useJUnitPlatform()
+   filter {
+      isFailOnNoMatchingTests = false
+   }
+   testLogging {
+      showExceptions = true
+      showStandardStreams = true
+      events = setOf(
+         org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+         org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
+      )
+      exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+   }
 }
 
 if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
