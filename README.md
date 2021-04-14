@@ -46,3 +46,9 @@ Another example with failure:
 Errors are again summarized at the end for easy digesting:
 
 ![output image with failure](docs/output3.png)
+
+
+### Changelog
+
+#### 0.3.7
+* Updated to work with gradle 7
