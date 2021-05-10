@@ -13,7 +13,7 @@ Add the plugin to your gradle build file:
 
 ```kotlin
 plugins {
-     id("io.kotest") version "0.3.7"
+     id("io.kotest") version "0.3.8"
 }
 ```
 
