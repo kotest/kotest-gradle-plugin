@@ -50,5 +50,9 @@ Errors are again summarized at the end for easy digesting:
 
 ### Changelog
 
+#### 0.3.8
+
+* Added --tags option
+
 #### 0.3.7
 * Updated to work with gradle 7
