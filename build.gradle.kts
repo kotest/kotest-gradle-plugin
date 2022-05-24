@@ -29,7 +29,7 @@ java {
 
 dependencies {
    compileOnly(gradleApi())
-   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
+   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21")
    compileOnly("io.kotest:kotest-framework-api-jvm:4.4.3")
    implementation("io.kotest:kotest-framework-engine-jvm:4.4.3")
    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
