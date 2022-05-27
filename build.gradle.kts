@@ -32,7 +32,7 @@ dependencies {
    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
    compileOnly("io.kotest:kotest-framework-api-jvm:4.4.3")
    implementation("io.kotest:kotest-framework-engine-jvm:4.4.3")
-   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2")
 
    testImplementation(Libs.Kotest.assertions)
    testImplementation(Libs.Kotest.junit5)
