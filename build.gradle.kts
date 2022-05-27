@@ -1,17 +1,10 @@
-buildscript {
-   repositories {
-      mavenCentral()
-      mavenLocal()
-   }
-}
-
 plugins {
    java
-   kotlin("jvm").version(Libs.KotlinVersion)
-   id("java-library")
-   id("maven-publish")
-   id("java-gradle-plugin")
-   id("com.gradle.plugin-publish").version(Libs.GradlePluginPublishVersion)
+   `java-library`
+   `maven-publish`
+   `java-gradle-plugin`
+   kotlin("jvm") version "1.4.32"
+   id("com.gradle.plugin-publish") version "0.14.0"
 }
 
 repositories {
@@ -29,13 +22,13 @@ java {
 
 dependencies {
    compileOnly(gradleApi())
-   compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.32")
-   compileOnly("io.kotest:kotest-framework-api-jvm:4.4.3")
-   implementation("io.kotest:kotest-framework-engine-jvm:4.4.3")
-   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
+   compileOnly(libs.kotlin.gradle.plugin)
+   compileOnly(libs.kotest.framework.api)
+   implementation(libs.kotest.framework.engine)
+   implementation(libs.kotlinx.coroutines.core)
 
-   testImplementation(Libs.Kotest.assertions)
-   testImplementation(Libs.Kotest.junit5)
+   testImplementation(libs.kotest.assertions.core)
+   testImplementation(libs.kotest.runner.junit5)
 }
 
 tasks.named<Test>("test") {
