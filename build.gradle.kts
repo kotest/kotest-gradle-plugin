@@ -68,7 +68,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks {
    pluginBundle {
-      website = "http://kotest.io"
+      website = "https://kotest.io"
       vcsUrl = "https://github.com/kotest"
       tags = listOf("kotest", "kotlin", "testing", "integrationTesting")
    }

@@ -1,7 +1,7 @@
 object Libs {
 
    const val KotlinVersion = "1.4.32"
-   const val GradlePluginPublishVersion = "0.14.0"
+   const val GradlePluginPublishVersion = "0.15.0"
 
    object Kotest {
       private const val version = "4.4.3"
