@@ -1,10 +1,11 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
    java
    `java-library`
    `maven-publish`
    `java-gradle-plugin`
-   kotlin("jvm") version "1.4.32"
-   id("com.gradle.plugin-publish") version "0.14.0"
+   alias(libs.plugins.kotlin.jvm)
+   alias(libs.plugins.gradle.plugin.publish)
 }
 
 repositories {
@@ -61,7 +62,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks {
    pluginBundle {
-      website = "http://kotest.io"
+      website = "https://kotest.io"
       vcsUrl = "https://github.com/kotest"
       tags = listOf("kotest", "kotlin", "testing", "integrationTesting")
    }
