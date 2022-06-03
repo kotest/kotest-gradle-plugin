@@ -23,9 +23,9 @@ import kotlin.concurrent.thread
 
 // gradle seems to require the class be open
 open class Kotest @Inject constructor(
-    private val fileResolver: FileResolver,
-    private val fileCollectionFactory: FileCollectionFactory,
-    private val executorFactory: ExecutorFactory
+   private val fileResolver: FileResolver,
+   private val fileCollectionFactory: FileCollectionFactory,
+   private val executorFactory: ExecutorFactory
 ) : Test() {
 
    companion object {
@@ -41,7 +41,7 @@ open class Kotest @Inject constructor(
 
    private val listeners = mutableListOf<TestListener>()
    private val outputListeners = mutableListOf<TestOutputListener>()
-
+   private val forkOptions = forkOptionsFactory.newDecoratedJavaForkOptions()
    private var tags: String? = null
 
    // gradle will call this if --tags was specified on the command line
