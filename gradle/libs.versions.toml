@@ -16,4 +16,4 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-gradle-plugin-publish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version = "0.21.0" }
