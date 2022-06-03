@@ -1,7 +1,7 @@
 object Ci {
 
    // this is the version
-   private const val baseVersion = "0.3"
+   private const val baseVersion = "0.4"
 
    private val githubBuildNumber = System.getenv("GITHUB_RUN_NUMBER")
 

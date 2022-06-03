@@ -1,9 +1,8 @@
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-   java
-   `java-library`
    `maven-publish`
    `java-gradle-plugin`
+   alias(libs.plugins.ktlint)
    alias(libs.plugins.kotlin.jvm)
    alias(libs.plugins.gradle.plugin.publish)
 }
@@ -19,6 +18,14 @@ version = Ci.publishVersion
 java {
    sourceCompatibility = JavaVersion.VERSION_1_8
    targetCompatibility = JavaVersion.VERSION_1_8
+
+   toolchain {
+      languageVersion.set(JavaLanguageVersion.of(11))
+   }
+}
+
+ktlint {
+   outputToConsole.set(true)
 }
 
 dependencies {
@@ -32,6 +39,7 @@ dependencies {
    testImplementation(libs.kotest.runner.junit5)
 }
 
+// TODO: bootstrap and run tests with own plugin
 tasks.named<Test>("test") {
    useJUnitPlatform()
    filter {
@@ -66,6 +74,7 @@ tasks {
       vcsUrl = "https://github.com/kotest"
       tags = listOf("kotest", "kotlin", "testing", "integrationTesting")
    }
+
    gradlePlugin {
       plugins {
          create("kotestPlugin") {

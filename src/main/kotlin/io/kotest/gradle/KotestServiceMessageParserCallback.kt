@@ -12,10 +12,11 @@ import org.gradle.api.tasks.testing.TestResult
 import java.lang.RuntimeException
 import java.text.ParseException
 
-class KotestServiceMessageParserCallback(private val root: DefaultTestSuiteDescriptor,
-                                         private val listeners: List<TestListener>,
-                                         private val outputListeners: MutableList<TestOutputListener>) :
-    ServiceMessageParserCallback {
+class KotestServiceMessageParserCallback(
+   private val root: DefaultTestSuiteDescriptor,
+   private val listeners: List<TestListener>,
+   private val outputListeners: MutableList<TestOutputListener>
+) : ServiceMessageParserCallback {
 
    private val startTimes = mutableMapOf<String, Long>()
    private val descriptors = mutableMapOf<String, KotestTestDescriptor>()
@@ -125,10 +126,10 @@ interface KotestTestDescriptor : TestDescriptorInternal {
 }
 
 data class TestCaseDescriptor(
-    override val testId: String,
-    val testName: String,
-    val fqn: String,
-    val parentTestDescriptor: KotestTestDescriptor
+   override val testId: String,
+   val testName: String,
+   val fqn: String,
+   val parentTestDescriptor: KotestTestDescriptor
 ) : KotestTestDescriptor {
    override fun getName(): String = testName
    override fun getDisplayName(): String = testName
@@ -142,10 +143,10 @@ data class TestCaseDescriptor(
 }
 
 data class ContainerDescriptor(
-    override val testId: String,
-    val testName: String,
-    val fqn: String,
-    val parentTestDescriptor: KotestTestDescriptor
+   override val testId: String,
+   val testName: String,
+   val fqn: String,
+   val parentTestDescriptor: KotestTestDescriptor
 ) : KotestTestDescriptor {
    override fun getName(): String = testName
    override fun getDisplayName(): String = testName
@@ -159,8 +160,8 @@ data class ContainerDescriptor(
 }
 
 data class SpecDescriptor(
-    val fqn: String,
-    val root: DefaultTestSuiteDescriptor
+   val fqn: String,
+   val root: DefaultTestSuiteDescriptor
 ) : KotestTestDescriptor {
    override fun getName(): String = fqn
    override fun getDisplayName(): String = fqn

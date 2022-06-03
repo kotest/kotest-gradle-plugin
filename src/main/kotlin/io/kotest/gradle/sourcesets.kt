@@ -1,7 +1,11 @@
 package io.kotest.gradle
 
+import io.kotest.gradle.Constants.KOTLIN_MULTIPLATFORM_PLUGIN_ID
+import org.gradle.api.Named
+import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.internal.DefaultJavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.extensibility.DefaultConvention
@@ -11,25 +15,47 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilationToRunnableFiles
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetWithTests
 
+private val MPP_LOG_LEVEL = LogLevel.INFO
+
 fun Project.mppTestTargets(): Map<KotlinTargetWithTests<*, *>, FileCollection> {
-   println("exts=" + project.extensions)
+
+   project.afterEvaluate {
+      project.plugins.withId(KOTLIN_MULTIPLATFORM_PLUGIN_ID) { plugin ->
+         println("Found multiplatform plugin")
+
+         val kotlinExt = project.extensions.getByName("kotlin")
+
+         @Suppress("UNCHECKED_CAST")
+
+         val sourceSets =
+            kotlinExt.javaClass.getMethod("getSourceSets").invoke(kotlinExt) as NamedDomainObjectCollection<out Named>
+         sourceSets.forEach {
+            println(it.name)
+         }
+      }
+   }
+
+   logger.log(MPP_LOG_LEVEL, "exts=" + project.extensions)
    val ext = project.extensions as DefaultConvention
-   println("map=" + ext.asMap)
+   logger.log(MPP_LOG_LEVEL, "map=" + ext.asMap)
 
    return when (val kotlin = project.extensions.getByName("kotlin")) {
       is KotlinMultiplatformExtension -> {
-         println("Detected mpp kotlin $kotlin")
-         println("kotlin.sourceSets ${kotlin.sourceSets.map { it.name }}")
-         println("kotlin.targets ${kotlin.targets.map { it.targetName + " " + it.platformType }}")
-         println("kotlin.testableTargets ${kotlin.testableTargets.map { it.targetName + " " + it.platformType }}")
+         logger.log(MPP_LOG_LEVEL, "Detected mpp kotlin $kotlin")
+         logger.log(MPP_LOG_LEVEL, "kotlin.sourceSets ${kotlin.sourceSets.map { it.name }}")
+         logger.log(MPP_LOG_LEVEL, "kotlin.targets ${kotlin.targets.map { it.targetName + " " + it.platformType }}")
+         logger.log(
+            MPP_LOG_LEVEL,
+            "kotlin.testableTargets ${kotlin.testableTargets.map { it.targetName + " " + it.platformType }}"
+         )
          kotlin.testableTargets.filter {
             // kotest plugin only supports JVM
             when (it.platformType) {
                KotlinPlatformType.jvm, KotlinPlatformType.androidJvm -> true
                else -> false
             }
-         }.map { target ->
-            println("Detected mpp target $target")
+         }.associateWith { target ->
+            logger.log(MPP_LOG_LEVEL, "Detected mpp target $target")
             val deps = target.compilations.map {
                when (it) {
                   is KotlinCompilationToRunnableFiles -> it.runtimeDependencyFiles + it.compileDependencyFiles
@@ -37,12 +63,11 @@ fun Project.mppTestTargets(): Map<KotlinTargetWithTests<*, *>, FileCollection> {
                }
             }
             val outputs = target.compilations.map { it.output.allOutputs }
-            val classpath = (deps + outputs).reduce { a, b -> a.plus(b) }
-            Pair(target, classpath)
-         }.toMap()
+            (deps + outputs).reduce { a, b -> a.plus(b) }
+         }
       }
       is KotlinProjectExtension -> {
-         println("kotlin KotlinProjectExtension $kotlin")
+         logger.log(MPP_LOG_LEVEL, "kotlin KotlinProjectExtension $kotlin")
          emptyMap()
       }
       else -> emptyMap()

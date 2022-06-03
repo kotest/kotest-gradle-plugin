@@ -1,6 +1,7 @@
 package io.kotest.gradle
 
 import groovy.lang.Closure
+import io.kotest.gradle.helpers.kotest
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
@@ -19,7 +20,7 @@ import org.gradle.process.internal.JavaForkOptionsFactory
 import javax.inject.Inject
 
 // gradle seems to require the class be open
-class KotestTask @Inject constructor(
+open class KotestTask @Inject constructor(
    private val fileResolver: FileResolver,
    private val fileCollectionFactory: FileCollectionFactory,
    private val executorFactory: ExecutorFactory,
@@ -68,7 +69,6 @@ class KotestTask @Inject constructor(
       isIntellij() -> listOf(ReporterArg, TeamCityReporter, TermArg, PlainColours) + tagArgs()
       else -> listOf(ReporterArg, TaycanReporter, TermArg, TrueColours) + tagArgs()
    }
-
 
    private fun copyTo(target: JavaForkOptions): KotestTask {
       forkOptions.copyTo(target)
