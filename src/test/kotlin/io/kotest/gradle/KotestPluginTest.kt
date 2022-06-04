@@ -1,7 +1,6 @@
 package io.kotest.gradle
 
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.gradle.helpers.kotest
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldNotBe
 import org.gradle.testfixtures.ProjectBuilder

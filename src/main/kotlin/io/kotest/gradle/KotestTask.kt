@@ -1,14 +1,21 @@
 package io.kotest.gradle
 
 import groovy.lang.Closure
-import io.kotest.gradle.helpers.kotest
+import jetbrains.buildServer.messages.serviceMessages.ServiceMessagesParser
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.internal.tasks.testing.DefaultTestSuiteDescriptor
+import org.gradle.api.internal.tasks.testing.results.DefaultTestResult
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.testing.TestListener
+import org.gradle.api.tasks.testing.TestResult
 import org.gradle.internal.concurrent.ExecutorFactory
 import org.gradle.internal.jvm.Jvm
 import org.gradle.jvm.toolchain.JavaLauncher
@@ -17,7 +24,10 @@ import org.gradle.process.ProcessForkOptions
 import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.process.internal.JavaForkOptionsFactory
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 // gradle seems to require the class be open
 open class KotestTask @Inject constructor(
@@ -49,6 +59,8 @@ open class KotestTask @Inject constructor(
    }
 
    private fun exec(classpath: FileCollection): JavaExecAction {
+      println("hello from $name")
+      println("Executing with: ${classpath.files.joinToString(separator = "\n")}")
       val exec =
          DefaultExecActionFactory.of(fileResolver, fileCollectionFactory, executorFactory, null).newJavaExecAction()
       copyTo(exec)
@@ -122,41 +134,43 @@ open class KotestTask @Inject constructor(
       return listeners.map { it::class.java.name }.any { it.contains(IntellijTestListenerClassName) }
    }
 
-//   private fun rerouteTeamCityListener(exec: JavaExecAction) {
-//      val input = PipedInputStream()
-//      exec.standardOutput = PipedOutputStream(input)
-//      thread {
-//         val root = DefaultTestSuiteDescriptor("root", "root")
-//         listeners.forEach {
-//            it.beforeSuite(root)
-//         }
-//         input.bufferedReader().useLines { lines ->
-//            val parser = ServiceMessagesParser()
-//            val callback = KotestServiceMessageParserCallback(root, listeners, outputListeners)
-//            lines.forEach { parser.parse(it, callback) }
-//         }
-//         listeners.forEach {
-//            it.afterSuite(root, DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, emptyList()))
-//         }
-//      }
-//   }
-//
-//   @TaskAction
-//   override fun executeTests() {
-//      //val testResultsDir = project.buildDir.resolve("test-results")
-//      val sourceset = project.javaTestSourceSet() ?: return
-//      val result = try {
-//         val exec = exec(sourceset.runtimeClasspath)
-//         if (isIntellij()) rerouteTeamCityListener(exec)
-//         exec.execute()
-//      } catch (e: Exception) {
-//         println(e)
-//         e.printStackTrace()
-//         throw GradleException("Test process failed", e)
-//      }
-//
-//      if (result.exitValue != 0) {
-//         throw GradleException("There were test failures")
-//      }
-//   }
+   private fun rerouteTeamCityListener(exec: JavaExecAction) {
+      val input = PipedInputStream()
+      exec.standardOutput = PipedOutputStream(input)
+      thread {
+         val root = DefaultTestSuiteDescriptor("root", "root")
+         listeners.forEach {
+            it.beforeSuite(root)
+         }
+         input.bufferedReader().useLines { lines ->
+            val parser = ServiceMessagesParser()
+            val callback = KotestServiceMessageParserCallback(root, listeners, mutableListOf()) // TODO: outputListeners
+            lines.forEach { parser.parse(it, callback) }
+         }
+         listeners.forEach {
+            it.afterSuite(root, DefaultTestResult(TestResult.ResultType.SUCCESS, 0, 0, 0, 0, 0, emptyList()))
+         }
+      }
+   }
+
+   @Input
+   val files: Property<FileCollection> = objectFactory.property(FileCollection::class.java)
+
+   @TaskAction
+   fun executeTests() {
+      // val testResultsDir = project.buildDir.resolve("test-results")
+      val result = try {
+         val exec = exec(files.orNull ?: error("No files configured for $name"))
+         if (isIntellij()) rerouteTeamCityListener(exec)
+         exec.execute()
+      } catch (e: Exception) {
+         println(e)
+         e.printStackTrace()
+         throw GradleException("Test process failed", e)
+      }
+
+      if (result.exitValue != 0) {
+         throw GradleException("There were test failures")
+      }
+   }
 }
