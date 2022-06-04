@@ -8,6 +8,12 @@ import org.gradle.api.plugins.internal.DefaultJavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilationToRunnableFiles
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.common
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.js
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetWithTests
 
 private val MPP_LOG_LEVEL = LogLevel.INFO
@@ -21,7 +27,7 @@ fun Project.setupMppTests() {
          val kotlinExt = extensions.getByType(KotlinMultiplatformExtension::class.java)
 
          kotlinExt.testableTargets.forEach { testTarget ->
-            createMppKotestTask(testTarget.targetName, testTarget.compiledFiles())
+            createMppKotestTask(testTarget, testTarget.compiledFiles())
          }
       }
    }
@@ -85,10 +91,22 @@ fun KotlinTargetWithTests<*, *>.compiledFiles(): FileCollection {
    return (deps + outputs).reduce { a, b -> a.plus(b) }
 }
 
-private fun Project.createMppKotestTask(targetName: String, files: FileCollection?) =
-   createKotestTask("${targetName}Kotest", "${targetName}TestClasses", files)
+private fun Project.createMppKotestTask(target: KotlinTargetWithTests<*, *>, files: FileCollection?) {
+   val taskToDependOn = when (target.platformType) {
+      js, jvm, androidJvm -> "${target.targetName}TestClasses"
+      native -> "${target.targetName}TestKlibrary"
+      common -> error("Not sure what to depend on for common targets")
+   }
 
-internal fun Project.createKotestTask(taskName: String, dependsOn: String, files: FileCollection?) {
+   createKotestTask("${target.targetName}Kotest", target.platformType, taskToDependOn, files)
+}
+
+internal fun Project.createKotestTask(
+   taskName: String,
+   platformType: KotlinPlatformType,
+   dependsOn: String,
+   files: FileCollection?
+) {
    if (tasks.none { it.name == taskName }) {
       println("Creating task $taskName")
 
@@ -96,6 +114,7 @@ internal fun Project.createKotestTask(taskName: String, dependsOn: String, files
          description = "Executes Kotest for the given target"
          group = "verification"
          this.files.set(files)
+         this.platformType.set(platformType)
          dependsOn(dependsOn)
 
          this@createKotestTask.tasks.getByName("check").dependsOn(this)

@@ -1,10 +1,8 @@
 package io.kotest.gradle
 
-import groovy.lang.Closure
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessagesParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
@@ -24,6 +22,12 @@ import org.gradle.process.ProcessForkOptions
 import org.gradle.process.internal.DefaultExecActionFactory
 import org.gradle.process.internal.JavaExecAction
 import org.gradle.process.internal.JavaForkOptionsFactory
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.common
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.js
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import javax.inject.Inject
@@ -38,27 +42,54 @@ open class KotestTask @Inject constructor(
    objectFactory: ObjectFactory,
 ) : DefaultTask() {
 
-   companion object {
-      private const val IntellijTestListenerClassName = "IJTestEventLogger"
-      private const val ReporterArg = "--reporter"
-      private const val TermArg = "--termcolor"
-      private const val TagsArg = "--tags"
-      private const val TeamCityReporter = "teamcity"
-      private const val TaycanReporter = "io.kotest.engine.reporter.TaycanConsoleReporter"
-      private const val PlainColours = "ansi16"
-      private const val TrueColours = "ansi256"
-   }
-
    private var tags: String? = null
    private val listeners = mutableListOf<TestListener>()
    private val forkOptions = javaForkOptionsFactory.newDecoratedJavaForkOptions()
    private val javaLauncher = objectFactory.property(JavaLauncher::class.java)
 
-   override fun configure(closure: Closure<*>): Task {
-      return super.configure(closure)
+   @Input
+   val files: Property<FileCollection> = objectFactory.property(FileCollection::class.java)
+
+   @Input
+   val platformType: Property<KotlinPlatformType> = objectFactory.property(KotlinPlatformType::class.java)
+
+   @TaskAction
+   fun executeTests() {
+      // val testResultsDir = project.buildDir.resolve("test-results")
+      val result = try {
+         val exec = exec(files.orNull ?: error("No files configured for $name"))
+         if (isIntellij() && exec is JavaExecAction) rerouteTeamCityListener(exec)
+         exec?.execute()
+      } catch (e: Exception) {
+         println(e)
+         e.printStackTrace()
+         throw GradleException("Test process failed", e)
+      }
+
+      if (result?.exitValue != 0) {
+         throw GradleException("There were test failures")
+      }
    }
 
-   private fun exec(classpath: FileCollection): JavaExecAction {
+   private fun exec(classpath: FileCollection): JavaExecAction? {
+      return when (platformType.get()) {
+         androidJvm, jvm -> execJvm(classpath)
+         native -> {
+            println("TODO: Exec native")
+            null
+         }
+         js -> {
+            println("TODO: Exec JS")
+            null
+         }
+         common -> {
+            println("TODO: Exec common tests?")
+            null
+         }
+      }
+   }
+
+   private fun execJvm(classpath: FileCollection): JavaExecAction? {
       println("hello from $name")
       println("Executing with: ${classpath.files.joinToString(separator = "\n")}")
       val exec =
@@ -118,8 +149,8 @@ open class KotestTask @Inject constructor(
     */
    private fun tagArgs(): List<String> {
       tags?.let { return listOf(TagsArg, it) }
-      project.kotest()?.tags?.orNull?.let { return listOf(TagsArg, it) }
-      return emptyList()
+      return project.kotest()?.tags?.orNull?.let { listOf(TagsArg, it) }
+         ?: emptyList()
    }
 
    /**
@@ -153,24 +184,14 @@ open class KotestTask @Inject constructor(
       }
    }
 
-   @Input
-   val files: Property<FileCollection> = objectFactory.property(FileCollection::class.java)
-
-   @TaskAction
-   fun executeTests() {
-      // val testResultsDir = project.buildDir.resolve("test-results")
-      val result = try {
-         val exec = exec(files.orNull ?: error("No files configured for $name"))
-         if (isIntellij()) rerouteTeamCityListener(exec)
-         exec.execute()
-      } catch (e: Exception) {
-         println(e)
-         e.printStackTrace()
-         throw GradleException("Test process failed", e)
-      }
-
-      if (result.exitValue != 0) {
-         throw GradleException("There were test failures")
-      }
+   companion object {
+      private const val IntellijTestListenerClassName = "IJTestEventLogger"
+      private const val ReporterArg = "--reporter"
+      private const val TermArg = "--termcolor"
+      private const val TagsArg = "--tags"
+      private const val TeamCityReporter = "teamcity"
+      private const val TaycanReporter = "io.kotest.engine.reporter.TaycanConsoleReporter"
+      private const val PlainColours = "ansi16"
+      private const val TrueColours = "ansi256"
    }
 }
