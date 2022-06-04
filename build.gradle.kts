@@ -29,8 +29,8 @@ ktlint {
 }
 
 dependencies {
-   compileOnly(gradleApi())
-   compileOnly(libs.kotlin.gradle.plugin)
+   implementation(gradleApi())
+   implementation(libs.kotlin.gradle.plugin)
    compileOnly(libs.kotest.framework.api)
    implementation(libs.kotest.framework.engine)
    implementation(libs.kotlinx.coroutines.core)

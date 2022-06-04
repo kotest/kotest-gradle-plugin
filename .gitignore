@@ -47,3 +47,5 @@ buildSrc/build/reports/
 buildSrc/build/source-roots/
 buildSrc/build/tmp/
 out/production/classes/META-INF/
+
+userHome/

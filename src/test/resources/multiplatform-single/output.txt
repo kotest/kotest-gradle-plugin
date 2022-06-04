@@ -1,0 +1,87 @@
+
+> Configure project :
+Kotlin Multiplatform Projects are an Alpha feature. See: https://kotlinlang.org/docs/reference/evolution/components-stability.html. To hide this message, add 'kotlin.mpp.stability.nowarn=true' to the Gradle properties.
+
+Applying kotest plugin to multiplatform-single
+Detected Kotlin MPP
+Found multiplatform plugin
+Creating task linuxX64Kotest
+Creating task mingwX64Kotest
+
+Some Kotlin/Native targets cannot be built on this macos_arm64 machine and are disabled:
+    * In project ':':
+        * target 'mingwX64' (can be built with a mingw_x64 host)
+To hide this message, add 'kotlin.native.ignoreDisabledTargets=true' to the Gradle properties.
+
+
+> Task :tasks
+
+------------------------------------------------------------
+Tasks runnable from root project 'multiplatform-single'
+------------------------------------------------------------
+
+Build tasks
+-----------
+assemble - Assembles the outputs of this project.
+build - Assembles and tests this project.
+buildDependents - Assembles and tests this project and all projects that depend on it.
+buildKotlinToolingMetadata - Build metadata json file containing information about the used Kotlin tooling
+buildNeeded - Assembles and tests this project and all projects it depends on.
+clean - Deletes the build directory.
+compileKotlinLinuxX64 - Compiles a klibrary from the 'main' compilation for target 'native'.
+compileKotlinMingwX64 - Compiles a klibrary from the 'main' compilation for target 'native'.
+compileTestKotlinLinuxX64 - Compiles a klibrary from the 'test' compilation for target 'native'.
+compileTestKotlinMingwX64 - Compiles a klibrary from the 'test' compilation for target 'native'.
+linkDebugTestLinuxX64 - Links a test executable 'debugTest' for a target 'linuxX64'.
+linkDebugTestMingwX64 - Links a test executable 'debugTest' for a target 'mingwX64'.
+linuxX64MainKlibrary - Assembles outputs for compilation 'main' of target 'linuxX64'
+linuxX64TestKlibrary - Assembles outputs for compilation 'test' of target 'linuxX64'
+metadataJar - Assembles an archive containing the main classes.
+metadataMainClasses - Assembles outputs for compilation 'main' of target 'metadata'
+mingwX64MainKlibrary - Assembles outputs for compilation 'main' of target 'mingwX64'
+mingwX64TestKlibrary - Assembles outputs for compilation 'test' of target 'mingwX64'
+
+Build Setup tasks
+-----------------
+init - Initializes a new Gradle build.
+wrapper - Generates Gradle wrapper files.
+
+Help tasks
+----------
+buildEnvironment - Displays all buildscript dependencies declared in root project 'multiplatform-single'.
+dependencies - Displays all dependencies declared in root project 'multiplatform-single'.
+dependencyInsight - Displays the insight into a specific dependency in root project 'multiplatform-single'.
+help - Displays a help message.
+javaToolchains - Displays the detected java toolchains.
+kotlinDslAccessorsReport - Prints the Kotlin code for accessing the currently available project extensions and conventions.
+outgoingVariants - Displays the outgoing variants of root project 'multiplatform-single'.
+projects - Displays the sub-projects of root project 'multiplatform-single'.
+properties - Displays the properties of root project 'multiplatform-single'.
+tasks - Displays the tasks runnable from root project 'multiplatform-single'.
+
+Verification tasks
+------------------
+allTests - Runs the tests for all targets and create aggregated report
+check - Runs all checks.
+linuxX64Kotest - Executes Kotest for the given target
+linuxX64Test - Executes Kotlin/Native unit tests for target linuxX64.
+mingwX64Kotest - Executes Kotest for the given target
+mingwX64Test - Executes Kotlin/Native unit tests for target mingwX64.
+
+Rules
+-----
+Pattern: clean<TaskName>: Cleans the output files of a task.
+Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+
+To see all tasks and more detail, run gradle tasks --all
+
+To see more detail about a task, run gradle help --task <task>
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.4.2/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 8m 50s
+1 actionable task: 1 executed
