@@ -1,6 +1,8 @@
 package io.kotest.gradle
 
 import io.kotest.gradle.Constants.KOTEST_EXTENSION_NAME
+import io.kotest.gradle.Constants.KOTLIN_JVM_PLUGIN_ID
+import io.kotest.gradle.Constants.KOTLIN_MULTIPLATFORM_PLUGIN_ID
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
@@ -18,15 +20,19 @@ open class KotestPlugin : Plugin<Project> {
          )
       }
 
-      project.plugins.withId("org.jetbrains.kotlin.multiplatform") {
+      var isMultiplatform = false
+      project.plugins.withId(KOTLIN_MULTIPLATFORM_PLUGIN_ID) {
+         isMultiplatform = true
          println("Detected Kotlin MPP")
          project.setupMppTests()
       }
 
       // if we detect the java plugin, this is probably a kotlin JVM project
-      project.plugins.withType(JavaPlugin::class.java) {
-         project.javaTestSourceSet()?.let {
-//            createKotestTask(project, "kotest", JavaPlugin.TEST_CLASSES_TASK_NAME, project.files(""))
+      project.plugins.withId(KOTLIN_JVM_PLUGIN_ID) {
+         if (!isMultiplatform) {
+            project.javaTestSourceSet()?.let {
+               project.createKotestTask("kotest", JavaPlugin.TEST_CLASSES_TASK_NAME, project.files(""))
+            }
          }
       }
    }

@@ -21,7 +21,7 @@ fun Project.setupMppTests() {
          val kotlinExt = extensions.getByType(KotlinMultiplatformExtension::class.java)
 
          kotlinExt.testableTargets.forEach { testTarget ->
-            createKotestTask(testTarget.targetName, testTarget.compiledFiles())
+            createMppKotestTask(testTarget.targetName, testTarget.compiledFiles())
          }
       }
    }
@@ -85,16 +85,18 @@ fun KotlinTargetWithTests<*, *>.compiledFiles(): FileCollection {
    return (deps + outputs).reduce { a, b -> a.plus(b) }
 }
 
-private fun Project.createKotestTask(targetName: String, files: FileCollection?) {
-   val taskName = targetName + "Kotest"
+private fun Project.createMppKotestTask(targetName: String, files: FileCollection?) =
+   createKotestTask("${targetName}Kotest", "${targetName}TestClasses", files)
+
+internal fun Project.createKotestTask(taskName: String, dependsOn: String, files: FileCollection?) {
    if (tasks.none { it.name == taskName }) {
       println("Creating task $taskName")
 
       tasks.maybeCreate(taskName, KotestTask::class.java).apply {
-         description = "Executes Kotest for $targetName"
+         description = "Executes Kotest for the given target"
          group = "verification"
          this.files.set(files)
-         dependsOn("${targetName}TestClasses")
+         dependsOn(dependsOn)
 
          this@createKotestTask.tasks.getByName("check").dependsOn(this)
       }
