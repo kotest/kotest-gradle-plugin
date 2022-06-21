@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.4.32"
-kotest = "4.4.3"
+kotest = "4.6.4"
 coroutines = "1.6.3"
 
 [libraries]
