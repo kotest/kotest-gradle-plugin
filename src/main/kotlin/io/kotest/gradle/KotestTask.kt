@@ -80,8 +80,7 @@ open class KotestTask @Inject constructor(
             null
          }
          js -> {
-            println("TODO: Exec JS")
-            null
+            execJs(classpath)
          }
          common -> {
             println("TODO: Exec common tests?")
@@ -107,6 +106,18 @@ open class KotestTask @Inject constructor(
 
       return UnifyingExecAction.Java(exec)
    }
+
+   private fun execJs(classpath: FileCollection): UnifyingExecAction.Default =
+      DefaultExecActionFactory
+         .of(fileResolver, fileCollectionFactory, executorFactory, null)
+         .newExecAction()
+         .apply {
+            environment = mapOf(
+               "KOTEST_ARG1" to "Hello"
+            )
+
+            executable = "npm mocha" // TODO: Figure out full cmd, probably need to point it to [classpath]?
+         }.let(UnifyingExecAction::Default)
 
    // -- reporter was added in 4.2.1
    private fun args() = when {
