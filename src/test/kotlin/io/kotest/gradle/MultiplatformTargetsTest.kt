@@ -12,9 +12,10 @@ class MultiplatformTargetsTest : WordSpec(
          val projectDir = File("src/test/resources/multiplatform-single")
          val tempFile = File("src/test/resources/multiplatform-single/output.txt")
 
-         val gradleRun = GradleRunner.create()
+         GradleRunner.create()
             .withProjectDir(projectDir)
             .withArguments("tasks")
+            .withPluginClasspath()
             .forwardStdOutput(tempFile.bufferedWriter())
             .build()
 

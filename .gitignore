@@ -49,3 +49,4 @@ buildSrc/build/tmp/
 out/production/classes/META-INF/
 
 userHome/
+**/resources/**/output.txt

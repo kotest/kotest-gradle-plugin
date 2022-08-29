@@ -1,28 +1,28 @@
 package io.kotest.gradle
 
-import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.matchers.string.shouldContain
+import io.kotest.inspectors.forOne
+import io.kotest.matchers.string.shouldStartWith
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
 class JvmOnlyTest : WordSpec(
    {
       "Applying the plugin to a multiplatform project" should {
-         val projectDir = File("src/test/resources/multiplatform-single")
-         val tempFile = File("src/test/resources/multiplatform-single/output.txt")
+         val projectDir = File("src/test/resources/jvm")
+         val tempFile = File("src/test/resources/jvm/output.txt")
 
-         val gradleRun = GradleRunner.create()
+         GradleRunner.create()
             .withProjectDir(projectDir)
             .withArguments("tasks")
+            .withPluginClasspath()
             .forwardStdOutput(tempFile.bufferedWriter())
             .build()
 
-         "Have multiple kotest tasks" {
-            val output = tempFile.readLines().joinToString()
-            assertSoftly(output) {
-               it shouldContain "linuxX64Kotest"
-               it shouldContain "mingwX64Kotest"
+         "Have kotest tasks" {
+            val lines = tempFile.readLines()
+            lines.forOne {
+               it shouldStartWith "kotest"
             }
          }
       }

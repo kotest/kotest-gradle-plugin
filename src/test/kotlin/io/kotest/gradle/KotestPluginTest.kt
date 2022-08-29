@@ -1,10 +1,10 @@
 package io.kotest.gradle
 
 import io.kotest.core.spec.style.WordSpec
+import io.kotest.gradle.assertions.shouldHaveExtension
 import io.kotest.gradle.assertions.shouldHavePlugin
+import io.kotest.gradle.assertions.shouldNotHaveTask
 import org.gradle.testfixtures.ProjectBuilder
-import shouldHaveExtension
-import shouldNotHaveTask
 
 class KotestPluginTest : WordSpec({
 

@@ -1,5 +1,6 @@
 package io.kotest.gradle
 
+import io.kotest.gradle.workarounds.UnifyingExecAction
 import jetbrains.buildServer.messages.serviceMessages.ServiceMessagesParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -39,7 +40,7 @@ open class KotestTask @Inject constructor(
    private val fileCollectionFactory: FileCollectionFactory,
    private val executorFactory: ExecutorFactory,
    javaForkOptionsFactory: JavaForkOptionsFactory,
-   objectFactory: ObjectFactory,
+   objectFactory: ObjectFactory
 ) : DefaultTask() {
 
    private var tags: String? = null
@@ -71,7 +72,7 @@ open class KotestTask @Inject constructor(
       }
    }
 
-   private fun exec(classpath: FileCollection): JavaExecAction? {
+   private fun exec(classpath: FileCollection): UnifyingExecAction? {
       return when (platformType.get()) {
          androidJvm, jvm -> execJvm(classpath)
          native -> {
@@ -89,7 +90,7 @@ open class KotestTask @Inject constructor(
       }
    }
 
-   private fun execJvm(classpath: FileCollection): JavaExecAction? {
+   private fun execJvm(classpath: FileCollection): UnifyingExecAction.Java {
       println("hello from $name")
       println("Executing with: ${classpath.files.joinToString(separator = "\n")}")
       val exec =
@@ -104,7 +105,7 @@ open class KotestTask @Inject constructor(
       // otherwise we get a nasty stack trace from gradle
       exec.isIgnoreExitValue = true
 
-      return exec
+      return UnifyingExecAction.Java(exec)
    }
 
    // -- reporter was added in 4.2.1

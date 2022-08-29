@@ -6,6 +6,8 @@ import io.kotest.gradle.Constants.KOTLIN_MULTIPLATFORM_PLUGIN_ID
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.internal.DefaultJavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 open class KotestPlugin : Plugin<Project> {
@@ -23,9 +25,11 @@ open class KotestPlugin : Plugin<Project> {
          }
 
          var isMultiplatform = false
+
          plugins.withId(KOTLIN_MULTIPLATFORM_PLUGIN_ID) {
             isMultiplatform = true
             println("Detected Kotlin MPP")
+            configureNativeCompilations()
             setupMppTests()
          }
 
@@ -42,6 +46,15 @@ open class KotestPlugin : Plugin<Project> {
                }
             }
          }
+      }
+   }
+
+   private fun Project.javaTestSourceSet(): SourceSet? {
+      return when (val java = convention.plugins["java"]) {
+         is DefaultJavaPluginConvention -> {
+            java.sourceSets.findByName("test")
+         }
+         else -> null
       }
    }
 }
