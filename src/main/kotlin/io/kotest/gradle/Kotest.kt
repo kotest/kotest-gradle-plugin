@@ -30,11 +30,11 @@ open class Kotest @Inject constructor(
 
    companion object {
       private const val IntellijTestListenerClassName = "IJTestEventLogger"
-      private const val ReporterArg = "--reporter"
+      private const val ListenerArg = "--listener"
       private const val TermArg = "--termcolor"
       private const val TagsArg = "--tags"
-      private const val TeamCityReporter = "teamcity"
-      private const val TaycanReporter = "io.kotest.engine.reporter.TaycanConsoleReporter"
+      private const val TeamCityListener = "teamcity"
+      private const val EnhancedConsoleTestEngineListener = "enhanced"
       private const val PlainColours = "ansi16"
       private const val TrueColours = "ansi256"
    }
@@ -75,8 +75,8 @@ open class Kotest @Inject constructor(
 
    // -- reporter was added in 4.2.1
    private fun args() = when {
-      isIntellij() -> listOf(ReporterArg, TeamCityReporter, TermArg, PlainColours) + tagArgs()
-      else -> listOf(ReporterArg, TaycanReporter, TermArg, TrueColours) + tagArgs()
+      isIntellij() -> listOf(ListenerArg, TeamCityListener, TermArg, PlainColours) + tagArgs()
+      else -> listOf(ListenerArg, EnhancedConsoleTestEngineListener, TermArg, TrueColours) + tagArgs()
    }
 
    private fun exec(classpath: FileCollection): JavaExecAction {
