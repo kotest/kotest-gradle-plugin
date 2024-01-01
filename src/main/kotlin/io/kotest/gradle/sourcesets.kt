@@ -2,6 +2,7 @@ package io.kotest.gradle
 
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.plugins.internal.DefaultJavaPluginConvention
 import org.gradle.api.tasks.SourceSet
 import org.gradle.internal.extensibility.DefaultConvention
@@ -49,11 +50,7 @@ fun Project.mppTestTargets(): Map<KotlinTargetWithTests<*, *>, FileCollection> {
    }
 }
 
-fun Project.javaTestSourceSet(): SourceSet? {
-   return when (val java = convention.plugins["java"]) {
-      is DefaultJavaPluginConvention -> {
-         java.sourceSets.findByName("test")
-      }
-      else -> null
-   }
-}
+fun Project.javaTestSourceSet(): SourceSet? =
+   extensions.findByType(JavaPluginExtension::class.java)
+      ?.sourceSets
+      ?.findByName("test")
