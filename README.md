@@ -1,5 +1,7 @@
 # kotest-gradle-plugin
 
+## Moved to main kotest repo
+
 ![build](https://github.com/kotest/kotest-gradle-plugin/workflows/build/badge.svg)
 
 [Gradle plugin](https://plugins.gradle.org/plugin/io.kotest) for running JVM tests with Kotest. Requires Kotest 5.5.x or higher.
